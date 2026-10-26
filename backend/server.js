@@ -10,20 +10,23 @@ const db = require('./db');
 const app = express();
 
 // ==================== Lab 9.7: CORS Configuration (Support Local & Production Vercel) ====================
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:5173',
-  process.env.FRONTEND_URL
-].filter(Boolean);
-
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin) return callback(null, true);
+    
+    // ยอมรับ origin จาก localhost, โดเมน .vercel.app ทั้งหมด และ FRONTEND_URL
+    const isLocalhost = origin.includes('localhost') || origin.includes('127.0.0.1');
+    const isVercel = origin.endsWith('.vercel.app');
+    const isConfiguredFrontend = process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL.replace(/\/$/, '');
+
+    if (isLocalhost || isVercel || isConfiguredFrontend) {
       return callback(null, true);
     }
-    return callback(new Error('Blocked by CORS policy'));
+    return callback(null, false);
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
