@@ -481,3 +481,5 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`  [RBAC]      DELETE /api/books/:id     → manager, admin`);
   console.log(`==============================================\n`);
 });
+
+module.exports = app;
